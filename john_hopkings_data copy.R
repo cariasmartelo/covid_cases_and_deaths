@@ -6,5 +6,6 @@ unique(coronavirus %>%
   filter(Country.Region == 'US') %>%
   select(type))
 
+
 data(coronavirus)
 colnames(coronavirus)
