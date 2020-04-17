@@ -4,7 +4,6 @@
 
 rm(list = ls())
 library(tidyverse)
-library(httr)
 #setwd("~/Google Drive/Escuela/MSCAPP/Q6/covid_gov_responses/covid_cases_and_deaths")
 
 # URL of updated data
@@ -18,7 +17,7 @@ deaths_world_csv <- 'time_series_covid19_deaths_global.csv'
 for (panel in c(cases_us_csv, cases_world_csv, deaths_us_csv, deaths_world_csv)){
   url_path <- file.path(repository, panel)
   filepath <- "data"
-  GET(url_path, write_disk(file.path(filepath, panel), overwrite=TRUE))
+  download.file(url_path, destfile = file.path(filepath, panel))
 }
 
 
