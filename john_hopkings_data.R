@@ -1,3 +1,7 @@
+#Covid gov Responses
+#Script to download latest data from John Hompings and do come plots
+#
+
 rm(list = ls())
 library(tidyverse)
 library(httr)
@@ -25,11 +29,34 @@ deaths_us <- read_csv(file.path(filepath, deaths_us_csv))
 deaths_world <- read_csv(file.path(filepath, deaths_world_csv))
 
 
+# Aggregate by state, creating average cases column
 cases_by_state <- cases_us %>%
   select(-UID, -iso2, -iso3, -code3, -FIPS, -Admin2,
          -Country_Region, -Lat, -Long_, -Combined_Key) %>%
   group_by(Province_State) %>%
   summarise_all(sum)
 
-View(cases_by_state)
-            
+
+# Optain most infected states
+top_states <- cases_by_state %>%
+  mutate(average_cases = rowMeans(.[-1], na.rm = TRUE)) %>%
+  arrange(desc(average_cases)) %>%
+  head(10) %>%
+  select(Province_State) %>%
+  pull(.)
+
+# Convert by state to long
+cases_by_state_long <- cases_by_state %>%
+  gather("date", "cases", 2:ncol(cases_by_state)) %>%
+  mutate(date = as.Date(date, format = "%m/%d/%y"))
+
+# Plot most infected states
+cases_by_state_long %>%
+  filter(Province_State %in% top_states) %>%
+  ggplot(aes(x = date, y = cases)) + 
+  geom_line(aes(color = Province_State)) +
+  theme_bw() +
+  ggtitle("Cummulative confirmed cases by US state by day - 10 States with highest number") +
+  scale_y_continuous(labels = comma) +
+  ggsave(file.path('figures', 'cummulative_confirmed_us_states.png'))
+  
