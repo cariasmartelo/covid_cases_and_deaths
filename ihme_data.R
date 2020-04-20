@@ -16,11 +16,17 @@ latest_ihme_updated <- 'https://ihmecovid19storage.blob.core.windows.net/latest/
 # deaths_world_csv <- 'time_series_covid19_deaths_global.csv'
 
 
-
+# URL de decsarga
+latest_ihme_updated <- 'https://ihmecovid19storage.blob.core.windows.net/latest/ihme-covid19.zip'
+# Creas archivo temporal
 temp <- tempfile()
+# Descargas zip y lo pones en archivo temporal
 download.file(latest_ihme_updated,temp)
+# Obtengo el nombre del archivo dentro del zip que quiero extraer
 filename <- unzip(temp, list=TRUE)$Name[2]
+# Extraigo del archivo temporal el archivo que indiqué
 data <- read_csv(unz(temp, filename))
+# Bye archivo temporal
 unlink(temp)
 
 View(data)
