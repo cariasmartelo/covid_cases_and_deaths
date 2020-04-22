@@ -14,9 +14,9 @@ deaths_us_csv <- 'time_series_covid19_deaths_US.csv'
 deaths_world_csv <- 'time_series_covid19_deaths_global.csv'
 
 # Downloading most recent CSV's
+filepath <- "data"
 for (panel in c(cases_us_csv, cases_world_csv, deaths_us_csv, deaths_world_csv)){
   url_path <- file.path(repository, panel)
-  filepath <- "data"
   download.file(url_path, destfile = file.path(filepath, panel))
 }
 
