@@ -6,13 +6,28 @@ rm(list = ls())
 library(tidyverse)
 library(gridExtra)
 # TO download latest proyections
-source('ihme_data_download.R')
+# source('ihme_data_download.R')
 
+# Set working directory
+setwd("~/Google Drive/Escuela/MSCAPP/Q6/covid_gov_responses/covid_cases_and_deaths")
+# Change to path where IHME csv's are
 filepath <- "data/IHME"
 
 # Import latest proyections
-latest_proyections <- read_csv(file.path(filepath, '2020_04_20.02.all_Hospitalization_all_locs.csv'))
-# Filter NON-US
+start_date <- '2020-02-15'
+latest_proyection_csv <- '2020_04_20.02.all_Hospitalization_all_locs.csv'
+first_proyection_csv <- 'ihme-covid19_ihme-covid19_all_locs.csv'
+latest_proyections <- read_csv(file.path(filepath, latest_proyection_csv))
+latest_proyections <- latest_proyections %>%
+  filter(date > as.Date(start_date))
+
+first_proyections <- read_csv(file.path(filepath, first_proyection_csv))
+first_proyections <- first_proyections %>%
+  rename(date = date_reported)
+first_proyections <- first_proyections %>%
+  filter(date > as.Date(start_date))
+
+# Filter put NON-US
 us_states <- c('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
                'Colorado', 'Connecticut','Delaware','Florida','Georgia',
                'Hawaii','Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas',
@@ -25,38 +40,38 @@ us_states <- c('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
                'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin',
                'Wyoming')
 
-latest_proyections_us <- latest_proyections %>%
-  filter(location_name %in% us_states)
+keep_only_states <- function(df, states){
+  return_df <- df %>%
+    filter(location_name %in% states)
+}
+
+latest_proyections_us <- keep_only_states(latest_proyections, us_states)
+first_proyections_us <- keep_only_states(first_proyections, us_states)
 
 
-latest_proyections_us_ny_ca_mi <- latest_proyections_us %>%
-  filter(location_name == 'New York' | location_name == 'California' | location_name == 'Illinois')
-
-
-latest_proyections_plot_ny_ca_mi <- latest_proyections_us_ny_ca_mi %>%
+# Plot
+states_to_plot <- c("New York", "Illinois", "California")
+latest_proyections_plot<- keep_only_states(latest_proyections_us, states_to_plot) %>%
   ggplot(aes(x=date, y=deaths_mean)) +
   geom_line(aes(color=location_name)) +
   geom_vline(xintercept = as.Date('2020-04-20'), linetype = 'dashed') +
-  ggtitle("Deaths by COVID, Proyections April 20") +
+  ggtitle("Deaths by COVID, Projections April 20") +
   theme_bw()
 
 
 
+# Do same proceedure with April 5 proyections
 
-april_5 <- read_csv(file.path(filepath, '2020_04_05.08.all_Hospitalization_all_locs.csv'))
-april_5_us <- april_5 %>%
-  filter(location_name %in% us_states)
-
-april_5_us_ny_ca_mi <- april_5_us %>%
-  filter(location_name == 'New York' | location_name == 'California' | location_name == 'Illinois')
-
-april_5_us_ny_ca_mi <- april_5_us_ny_ca_mi %>%
+first_proyections_plot <- keep_only_states(first_proyections_us, states_to_plot) %>%
   ggplot(aes(x=date, y=deaths_mean)) +
   geom_line(aes(color=location_name)) +
-  geom_vline(xintercept = as.Date('2020-04-05'), linetype = 'dashed') +
-  ggtitle("Deaths by COVID, Proyections April 8") +
+  geom_vline(xintercept = as.Date('2020-03-25'), linetype = 'dashed') +
+  ggtitle("Deaths by COVID, Projections March 25") +
   theme_bw()
   
+summary(first_proyections_us$date)
+summary(latest_proyections_us$date)
 
-
-grid.arrange(april_5_us_ny_ca_mi, latest_proyections_plot_ny_ca_mi, nrow=2)
+View(keep_only_states(latest_proyections_us, c('New York')))
+# Show plots
+grid.arrange(first_proyections_plot, latest_proyections_plot, nrow=2)
