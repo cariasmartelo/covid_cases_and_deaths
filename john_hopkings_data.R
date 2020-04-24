@@ -5,6 +5,7 @@
 rm(list = ls())
 library(tidyverse)
 #setwd("~/Google Drive/Escuela/MSCAPP/Q6/covid_gov_responses/covid_cases_and_deaths")
+#setwd('~/Documents/GitHub/covid_cases_and_deaths')
 
 # URL of updated data
 repository <- 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/'
